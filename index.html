@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>단어 외우기</title>
+    <script>
+      var words = [];
+
+      function addWord() {
+        var word = document.getElementById("word").value;
+        var definition = document.getElementById("definition").value;
+
+        if (word.trim() === "" || definition.trim() === "") {
+          alert("단어와 뜻을 모두 입력해주세요.");
+          return;
+        }
+
+        for (var i = 0; i < words.length; i++) {
+          if (words[i].word.toLowerCase() === word.toLowerCase()) {
+            alert("이미 추가된 단어입니다.");
+            return;
+          }
+        }
+
+        words.push({ word: word, definition: definition });
+        document.getElementById("word").value = "";
+        document.getElementById("definition").value = "";
+        generateQuiz();
+      }
+
+      function generateQuiz() {
+        if (words.length === 0) {
+          document.getElementById("quiz").innerHTML = "추가된 단어가 없습니다.";
+          document.getElementById("result").innerHTML = "";
+          return;
+        }
+
+        var randomWords;
+
+        var randomWords = words.slice();
+        randomWords.sort(function () {
+          return 0.5 - Math.random();
+        });
+
+        var quizHTML = "";
+        for (var i = 0; i < randomWords.length; i++) {
+          var word = randomWords[i].word;
+          var definition = randomWords[i].definition;
+          var index = words.indexOf(randomWords[i]);
+
+          quizHTML += "<p><b>" + word + "</b>의 뜻은?</p>";
+          quizHTML +=
+            "<input type='text' id='definition_" +
+            index +
+            "' placeholder='뜻을 입력하세요'>";
+        }
+
+        document.getElementById("quiz").innerHTML = quizHTML;
+        document.getElementById("result").innerHTML = "";
+      }
+
+      function gradeQuiz() {
+        if (words.length === 0) {
+          document.getElementById("result").innerHTML = "";
+          return;
+        }
+
+        var numCorrect = 0;
+        for (var i = 0; i < words.length; i++) {
+          var userAnswer = document.getElementById("definition_" + i).value;
+          var correctAnswer = words[i].definition;
+          var isCorrect =
+            userAnswer.toLowerCase() === correctAnswer.toLowerCase();
+
+          if (isCorrect) {
+            document.getElementById("definition_" + i).style.backgroundColor =
+              "lightgreen";
+            numCorrect++;
+          } else {
+            // 틀린 문제의 정답을 보여줍니다.
+            var correctAnswer = words[i].definition;
+            document.getElementById("definition_" + i).style.backgroundColor =
+              "pink";
+            document.getElementById("definition_" + i).value = correctAnswer;
+          }
+        }
+
+        var resultHTML = "당신의 점수는 " + numCorrect + "/" + words.length;
+        document.getElementById("result").innerHTML = resultHTML;
+      }
+      function retryQuiz() {
+        for (var i = 0; i < words.length; i++) {
+          var input = document.getElementById("definition_" + i);
+          input.value = "";
+          input.style.backgroundColor = "";
+        }
+        document.getElementById("result").innerHTML = "";
+      }
+    </script>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      h1 {
+        text-align: center;
+        font-size: 2.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+      label {
+        display: inline-block;
+        width: 5rem;
+      }
+      input[type="text"] {
+        width: 20rem;
+        padding: 0.3rem;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        margin-right: 1rem;
+        margin-bottom: 1rem;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-right: 1rem;
+        margin-top: 1rem;
+      }
+      button:hover {
+        background-color: #3e8e41;
+      }
+      #quiz p {
+        margin-bottom: 0.5rem;
+      }
+      #quiz input[type="text"] {
+        margin-bottom: 1rem;
+        display: block;
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+      #result {
+        margin-top: 1rem;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>단어 외우기 퀴즈</h1>
+    <h2>단어 추가</h2>
+    <label for="word">단어:</label>
+    <input
+      type="text"
+      id="word"
+      onkeypress="if (event.keyCode === 13) addWord()"
+    />
+    <label for="definition">뜻:</label>
+    <input
+      type="text"
+      id="definition"
+      onkeypress="if (event.keyCode === 13) addWord()"
+    />
+    <button onclick="addWord()">추가</button>
+
+    <h2>퀴즈</h2>
+    <button onclick="generateQuiz()"></button>
+
+    <div id="quiz"></div>
+    <button onclick="gradeQuiz()">채점하기</button>
+    <button onclick="retryQuiz()">재시험</button>
+
+    <div id="result"></div>
+  </body>
+</html>
